@@ -49,6 +49,8 @@ void loop()
         if(led_color.equals(l.name))
         {
             String cmd = Serial.readStringUntil(DELIM);
+            cmd.toLowerCase();
+            cmd.trim();
             if(cmd == NULL)
             {
                 Serial.println("ERROR: failed parsing cmd");
@@ -91,6 +93,7 @@ void cmd_on(LED l)
         Serial.println("format: led,on,intensity");
         return;
     }
+    tmp.trim();
     int intensity = tmp.toInt();
     l.set_intensity(intensity);
 }
@@ -104,6 +107,7 @@ void cmd_blink(LED l)
         Serial.println("format: led,blink,times,on_ms,off_ms");
         return;
     }
+    tmp.trim();
     int x = tmp.toInt();
     tmp = Serial.readStringUntil(DELIM);
     if(tmp == NULL)
@@ -112,6 +116,7 @@ void cmd_blink(LED l)
         Serial.println("format: led,blink,times,on_ms,off_ms");
         return;
     }
+    tmp.trim();
     int y = tmp.toInt();
     tmp = Serial.readStringUntil(DELIM);
     if(tmp == NULL)
@@ -120,6 +125,7 @@ void cmd_blink(LED l)
         Serial.println("format: led,blink,times,on_ms,off_ms");
         return;
     }
+    tmp.trim();
     int z = tmp.toInt();
     l.blink(x, y, z);
 }
