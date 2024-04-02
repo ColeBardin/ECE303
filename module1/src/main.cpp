@@ -3,12 +3,30 @@
 
 #define DELIM ','
 
+typedef struct
+{
+    String name;
+    void (*func)(LED l);
+} cmd_t;
+
+void cmd_high(LED l);
+void cmd_low(LED l);
+void cmd_on(LED l);
+void cmd_blink(LED l);
+
 LED leds[] = {
               LED(8, "red"), 
               LED(7, "yellow"), 
               LED(6, "blue"), 
               LED(5, "green")
              };
+
+cmd_t cmds[] = {
+                {"high", cmd_high},
+                {"low", cmd_low},
+                {"on", cmd_on},
+                {"blink", cmd_blink}
+               };
 
 void setup()
 {
@@ -39,52 +57,70 @@ void loop()
             }
             cmd.toLowerCase();
             cmd.trim();
-            if(cmd.equals("high")) l.on();
-            else if(cmd.equals("low")) l.off();
-            else if(cmd.equals("on"))
+            for(auto &c: cmds)
             {
-                String tmp = Serial.readStringUntil(DELIM);
-                if(tmp == NULL)
+                if(cmd.equals(c.name))
                 {
-                    Serial.println("ERROR: failed parsing intensity value");
-                    Serial.println("format: led,on,intensity");
+                    c.func(l);
                     return;
                 }
-                int intensity = tmp.toInt();
-                l.set_intensity(intensity);
             }
-            else if(cmd.equals("blink"))
-            {
-                String tmp = Serial.readStringUntil(DELIM);
-                if(tmp == NULL)
-                {
-                    Serial.println("ERROR: failed parsing blink times");
-                    Serial.println("format: led,blink,times,on_ms,off_ms");
-                    return;
-                }
-                int x = tmp.toInt();
-                tmp = Serial.readStringUntil(DELIM);
-                if(tmp == NULL)
-                {
-                    Serial.println("ERROR: failed parsing blink on_ms");
-                    Serial.println("format: led,blink,times,on_ms,off_ms");
-                    return;
-                }
-                int y = tmp.toInt();
-                tmp = Serial.readStringUntil(DELIM);
-                if(tmp == NULL)
-                {
-                    Serial.println("ERROR: failed parsing blink off_ms");
-                    Serial.println("format: led,blink,times,on_ms,off_ms");
-                    return;
-                }
-                int z = tmp.toInt();
-                l.blink(x, y, z);
-            }
-            else Serial.println("ERROR: cmd not found: " + cmd);
+            Serial.println("ERROR: cmd not found: " + cmd);
             return;
         }
     }
     Serial.println("ERROR: led color name invalid: " + led_color);
+}
+
+void cmd_high(LED l)
+{
+    l.on();
+}
+
+void cmd_low(LED l)
+{
+    l.off();
+}
+
+void cmd_on(LED l)
+{
+    String tmp = Serial.readStringUntil(DELIM);
+    if(tmp == NULL)
+    {
+        Serial.println("ERROR: failed parsing intensity value");
+        Serial.println("format: led,on,intensity");
+        return;
+    }
+    int intensity = tmp.toInt();
+    l.set_intensity(intensity);
+}
+
+void cmd_blink(LED l)
+{
+    String tmp = Serial.readStringUntil(DELIM);
+    if(tmp == NULL)
+    {
+        Serial.println("ERROR: failed parsing blink times");
+        Serial.println("format: led,blink,times,on_ms,off_ms");
+        return;
+    }
+    int x = tmp.toInt();
+    tmp = Serial.readStringUntil(DELIM);
+    if(tmp == NULL)
+    {
+        Serial.println("ERROR: failed parsing blink on_ms");
+        Serial.println("format: led,blink,times,on_ms,off_ms");
+        return;
+    }
+    int y = tmp.toInt();
+    tmp = Serial.readStringUntil(DELIM);
+    if(tmp == NULL)
+    {
+        Serial.println("ERROR: failed parsing blink off_ms");
+        Serial.println("format: led,blink,times,on_ms,off_ms");
+        return;
+    }
+    int z = tmp.toInt();
+    l.blink(x, y, z);
 }
 
