@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <LED.h>
 
-#define DEBUG 1
 #define DELIM ','
 
 LED leds[] = {
@@ -13,7 +12,6 @@ LED leds[] = {
 
 void setup()
 {
-
     Serial.begin(9600);
 }
 
@@ -41,21 +39,19 @@ void loop()
             }
             cmd.toLowerCase();
             cmd.trim();
-            if(cmd.equals("on"))
+            if(cmd.equals("high")) l.on();
+            else if(cmd.equals("low")) l.off();
+            else if(cmd.equals("on"))
             {
-                #if DEBUG==1
-                String tmp = led_color + " set on";
-                Serial.println(tmp);
-                #endif
-                l.on();
-            }
-            else if(cmd.equals("off"))
-            {
-                #if DEBUG==1
-                String tmp = led_color + " set off";
-                Serial.println(tmp);
-                #endif
-                l.off();
+                String tmp = Serial.readStringUntil(DELIM);
+                if(tmp == NULL)
+                {
+                    Serial.println("ERROR: failed parsing intensity value");
+                    Serial.println("format: led,on,intensity");
+                    return;
+                }
+                int intensity = tmp.toInt();
+                l.set_intensity(intensity);
             }
             else if(cmd.equals("blink"))
             {
@@ -83,22 +79,9 @@ void loop()
                     return;
                 }
                 int z = tmp.toInt();
-                #if DEBUG==1
-                tmp = led_color + " blink " + x + " times " + y + "ms on " + z + "ms off";
-                Serial.println(tmp);
-                #endif
-                for(int cnt = 0; cnt < x; cnt++)
-                {
-                    l.on();
-                    delay(y);
-                    l.off();
-                    delay(z);
-                }
+                l.blink(x, y, z);
             }
-            else
-            {
-                Serial.println("ERROR: cmd not found: " + cmd);
-            }
+            else Serial.println("ERROR: cmd not found: " + cmd);
             return;
         }
     }

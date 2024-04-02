@@ -11,8 +11,9 @@ class LED
         LED(int pin, String name);
         void on();
         void off();
-        void intensity(int val);
+        void set_intensity(int val);
         void blink(int x, int y, int z);
 };
 
 #endif // _LED_H_
+
