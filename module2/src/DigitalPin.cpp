@@ -1,6 +1,7 @@
 #include "DigitalPin.h"
 
-DigitalPin::timer_map_t tmap[NTIMERS] = {
+DigitalPin::timer_map_t tmap[NTIMERS] = 
+{
     {0, TIMER_8BIT,  13, CH_A, TCCR0A, TCCR0B, TCNT0, OCR0A, TIMSK0, TIFR0},
     {0, TIMER_8BIT,   4, CH_B, TCCR0A, TCCR0B, TCNT0, OCR0B, TIMSK0, TIFR0},
     {1, TIMER_16BIT, 11, CH_A, TCCR1A, TCCR1B, TCNT1, OCR1A, TIMSK1, TIFR1},
@@ -45,32 +46,33 @@ DigitalPin::DigitalPin(int pin) :
 
 int DigitalPin::set_TCCRA(uint8_t reg)
 {
-    return 0;
+    return *_TCCRA = reg;
 }
 
 int DigitalPin::set_TCCRB(uint8_t reg)
 {
-    return 0;
+    return *_TCCRB = reg;
 }
 
 int DigitalPin::set_TCNT(uint16_t reg)
 {
-    *_TCNT = reg;
-    return *_TCNT;
+    return *_TCNT = reg;
 }
 
 int DigitalPin::set_OCR(uint16_t reg)
 {
-    return 0;
-}
-
-int DigitalPin::factor_OCR(uint16_t reg)
-{
-    return 0;
+    if(_width == TIMER_8BIT) return *(volatile uint8_t *)_OCR = reg;
+    else return *_OCR = reg;
 }
 
 int DigitalPin::set_TIMSK(uint8_t reg)
 {
-    return 0;
+    return *_TIMSK = reg;
+}
+
+int DigitalPin::factor_OCR(uint16_t factor)
+{
+    if(_width == TIMER_8BIT) return *(volatile uint8_t *)_OCR /= factor;
+    else return *_OCR /= factor;
 }
 

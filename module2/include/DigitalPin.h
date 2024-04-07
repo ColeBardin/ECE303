@@ -28,8 +28,8 @@ class DigitalPin
         int set_TCCRB(uint8_t reg);
         int set_TCNT(uint16_t reg);
         int set_OCR(uint16_t reg);
-        int factor_OCR(uint16_t reg);
         int set_TIMSK(uint8_t reg);
+        int factor_OCR(uint16_t factor);
 
         typedef struct
         {
