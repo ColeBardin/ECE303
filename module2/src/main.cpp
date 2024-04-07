@@ -1,9 +1,11 @@
 #include <Arduino.h>
+#include <DigitalPin.h>
 
 int get_rand1k();
 
 int number;
 int attempt; 
+DigitalPin p8(8);
 
 void setup()
 {
@@ -14,6 +16,7 @@ void setup()
 
 void loop()
 {
+    while(!Serial.available());
     // blink at 1Hz
 }
 
