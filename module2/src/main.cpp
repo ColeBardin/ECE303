@@ -5,7 +5,13 @@ int get_rand1k();
 
 int number;
 int attempt; 
-DigitalPin p8(8);
+DigitalPin leds[] =
+{
+   DigitalPin(11),
+   DigitalPin(5),
+   DigitalPin(6),
+   DigitalPin(44)
+};
 
 void setup()
 {
