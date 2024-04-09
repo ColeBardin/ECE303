@@ -76,3 +76,36 @@ int DigitalPin::factor_OCR(uint16_t factor)
     else return *_OCR /= factor;
 }
 
+int DigitalPin::set_COM(com_t val)
+{
+    *_TCCRA &= ~(0x3 << (6 - _channel * 2));
+    return *_TCCRA |= val << (6 - _channel * 2);
+}
+
+int DigitalPin::set_CS(cs_t val)
+{
+   *_TCCRB &= ~0x7; 
+   return *_TCCRB |= val;
+}
+
+int DigitalPin::set_OCIE(bool state)
+{
+    state &= 0x1;
+    *_TIMSK &= ~(0x1 << (_channel + 1));
+    return *_TIMSK |= state << (_channel + 1);
+}
+
+int DigitalPin::set_TOIE(bool state)
+{
+    state &= 0x1;
+    *_TIMSK &= ~(0x1);
+    return *_TIMSK |= state;
+}
+
+int DigitalPin::set_ICIE(bool state)
+{
+    state &= 0x1;
+    *_TIMSK &= ~(1 << 5);
+    return *_TIMSK |= state << 5;
+}
+

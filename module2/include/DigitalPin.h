@@ -20,6 +20,26 @@ typedef enum
     TIMER_16BIT
 } timer_width;
 
+typedef enum
+{
+    COM_NORMAL,
+    COM_TOGGLE,
+    COM_CLEAR,
+    COM_SET
+} com_t;
+
+typedef enum
+{
+    CS_DISABLE,
+    CS_PS_1,
+    CS_PS_8,
+    CS_PS_64,
+    CS_PS_256,
+    CS_PS_1024,
+    CS_EX_T1_FALLING,
+    CS_EX_T1_RISING
+} cs_t;
+
 class DigitalPin
 {
     public:
@@ -30,6 +50,11 @@ class DigitalPin
         int set_OCR(uint16_t reg);
         int set_TIMSK(uint8_t reg);
         int factor_OCR(uint16_t factor);
+        int set_COM(com_t val);
+        int set_CS(cs_t val);
+        int set_OCIE(bool state);
+        int set_TOIE(bool state);
+        int set_ICIE(bool state);
 
         typedef struct
         {
