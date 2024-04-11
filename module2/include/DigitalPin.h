@@ -48,7 +48,7 @@ class DigitalPin
         int set_TCNT(uint16_t reg);
         int set_OCR(uint16_t reg);
         int set_TIMSK(uint8_t reg);
-        int factor_OCR(uint16_t factor);
+        int factor_OCR(float factor);
         int set_COM(com_t val);
         int set_CS(cs_t val);
         int set_OCIE(bool state);
@@ -64,8 +64,10 @@ class DigitalPin
             timer_ch channel;
             uint32_t TCCRA;
             uint32_t TCCRB;
-            uint32_t TCNT;
-            uint32_t OCR;
+            uint32_t TCNTL;
+            uint32_t TCNTH;
+            uint32_t OCRL;
+            uint32_t OCRH;
             uint32_t TIMSK;
             uint32_t TIFR;
         } timer_map_t; 
@@ -76,8 +78,10 @@ class DigitalPin
         bool _valid_timer;
         timer_ch _channel;
         timer_width _width;
-        uint32_t _OCR;
-        uint32_t _TCNT;
+        uint32_t _OCRL;
+        uint32_t _OCRH;
+        uint32_t _TCNTL;
+        uint32_t _TCNTH;
         uint32_t _TCCRA;
         uint32_t _TCCRB;
         uint32_t _TIMSK;
