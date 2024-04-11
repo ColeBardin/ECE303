@@ -22,13 +22,16 @@ void setup()
     Serial.begin(9600);
     number = get_rand1k();
     noInterrupts();
-    p.set_TCCRA(0b00000010);
-    p.set_TCCRB(0b00000000);
-    p.set_TIMSK(0b00000000);
+    p.set_TCCRA(0b01000010);
+    p.set_TCCRB(0b00001101);
+    p.set_TIMSK(0b00000010);
+    p.set_OCR(50000);
+    /*
     p.set_COM(COM_TOGGLE);
     p.set_CS(CS_PS_1024);
-    p.set_OCR(3000);
+    p.set_OCR(300);
     p.set_OCIE(1);
+    */
     interrupts();
 }
 

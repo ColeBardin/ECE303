@@ -62,12 +62,12 @@ class DigitalPin
             timer_width width;
             int pin;
             timer_ch channel;
-            uint8_t *TCCRA;
-            uint8_t *TCCRB;
-            uint8_t *TCNT;
-            uint8_t *OCR;
-            uint8_t *TIMSK;
-            uint8_t *TIFR;
+            uint32_t TCCRA;
+            uint32_t TCCRB;
+            uint32_t TCNT;
+            uint32_t OCR;
+            uint32_t TIMSK;
+            uint32_t TIFR;
         } timer_map_t; 
 
     private:
@@ -76,12 +76,12 @@ class DigitalPin
         bool _valid_timer;
         timer_ch _channel;
         timer_width _width;
-        uint8_t *_OCR;
-        uint8_t *_TCNT;
-        uint8_t *_TCCRA;
-        uint8_t *_TCCRB;
-        uint8_t *_TIMSK;
-        uint8_t *_TIFR;
+        uint32_t _OCR;
+        uint32_t _TCNT;
+        uint32_t _TCCRA;
+        uint32_t _TCCRB;
+        uint32_t _TIMSK;
+        uint32_t _TIFR;
 };
 
 #endif
