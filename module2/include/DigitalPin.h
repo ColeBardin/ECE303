@@ -42,6 +42,8 @@ typedef enum
 class DigitalPin
 {
     public:
+        int _pin;
+        int _timer;
         DigitalPin(int pin);
         int set_TCCRA(uint8_t reg);
         int set_TCCRB(uint8_t reg);
@@ -73,8 +75,6 @@ class DigitalPin
         } timer_map_t; 
 
     private:
-        int _pin;
-        int _timer;
         bool _valid_timer;
         timer_ch _channel;
         timer_width _width;

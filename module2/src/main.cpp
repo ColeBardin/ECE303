@@ -1,56 +1,57 @@
 #include <Arduino.h>
-#include <DigitalPin.h>
+#include "Safe.h"
 
-int get_rand1k();
-
-int number;
-int attempt; 
-/*
-DigitalPin leds[] =
-{
-   DigitalPin(11),
-   DigitalPin(5),
-   DigitalPin(6),
-   DigitalPin(44)
-};
-*/
-
-DigitalPin p(5);
+Safe safe(5, 44, 11, 6, 5);
 
 void setup()
 {
     Serial.begin(9600);
-    number = get_rand1k();
-    noInterrupts();
-    p.set_TCCRA(0b00000000);
-    p.set_TCCRB(0b00001000);
-    p.set_TIMSK(0);
-    p.set_COM(COM_TOGGLE);
-    p.set_CS(CS_PS_256);
-    p.set_OCIE(1);
-    p.set_OCR(64000);
-    interrupts();
+    randomSeed(analogRead(0));
+    int code = random(10000);
+    Serial.print("Setting safe code to: ");
+    Serial.println(code);
+    safe.set_code(code);
 }
 
 void loop()
 {
-    //p.print();
-    p.set_OCR(64000);
-    for(int i = 0; i < 4; i++)
+    safe.lock();
+    Serial.println("Safe is LOCKED. Enter 4 digit number");
+    int guess;
+    while(safe.on)
     {
-        p.factor_OCR(2);
-        delay(5000);
+        while(!Serial.available());
+        guess = Serial.parseInt();
+        if(!safe.unlock(guess))
+        {
+            Serial.println("Unlocked");   
+            while(1) delay(10);
+        }
+        Serial.println("Incorrect. Try again");
     }
-    // blink at 1Hz
+    Serial.println("Out of attempts :(");
+    while(1) delay(10);
 }
 
-int get_rand1k()
+/*
+ISR(TIMER5_COMPA_vect)
 {
-    return 0;    
+    static bool state = false;
+    digitalWrite(44, state = !state);
 }
-
+ISR(TIMER1_COMPA_vect)
+{
+    static bool state = false;
+    digitalWrite(11, state = !state);
+}
+ISR(TIMER4_COMPA_vect)
+{
+    static bool state = false;
+    digitalWrite(6, state = !state);
+}
 ISR(TIMER3_COMPA_vect)
 {
     static bool state = false;
     digitalWrite(5, state = !state);
 }
+*/
