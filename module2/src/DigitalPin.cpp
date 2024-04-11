@@ -1,22 +1,23 @@
 #include "DigitalPin.h"
+#include <Arduino.h>
 
 DigitalPin::timer_map_t tmap[NTIMERS] = 
 {
-    {0, TIMER_8BIT,  13, CH_A, TCCR0A, TCCR0B, TCNT0, OCR0A, TIMSK0, TIFR0},
-    {0, TIMER_8BIT,   4, CH_B, TCCR0A, TCCR0B, TCNT0, OCR0B, TIMSK0, TIFR0},
-    {1, TIMER_16BIT, 11, CH_A, TCCR1A, TCCR1B, TCNT1, OCR1A, TIMSK1, TIFR1},
-    {1, TIMER_16BIT, 12, CH_B, TCCR1A, TCCR1B, TCNT1, OCR1B, TIMSK1, TIFR1},
-    {2, TIMER_8BIT,  10, CH_A, TCCR2A, TCCR2B, TCNT2, OCR2A, TIMSK2, TIFR2},
-    {2, TIMER_8BIT,   9, CH_B, TCCR2A, TCCR2B, TCNT2, OCR2B, TIMSK2, TIFR2},
-    {3, TIMER_16BIT,  5, CH_A, TCCR3A, TCCR3B, TCNT3, OCR3A, TIMSK3, TIFR3},
-    {3, TIMER_16BIT,  2, CH_B, TCCR3A, TCCR3B, TCNT3, OCR3B, TIMSK3, TIFR3},
-    {3, TIMER_16BIT,  3, CH_C, TCCR3A, TCCR3B, TCNT3, OCR3C, TIMSK3, TIFR3},
-    {4, TIMER_16BIT,  6, CH_A, TCCR4A, TCCR4B, TCNT4, OCR3A, TIMSK4, TIFR4},
-    {4, TIMER_16BIT,  7, CH_B, TCCR4A, TCCR4B, TCNT4, OCR3B, TIMSK4, TIFR4},
-    {4, TIMER_16BIT,  8, CH_C, TCCR4A, TCCR4B, TCNT4, OCR3C, TIMSK4, TIFR4},
-    {5, TIMER_16BIT, 44, CH_A, TCCR5A, TCCR5B, TCNT5, OCR5A, TIMSK5, TIFR5},
-    {5, TIMER_16BIT, 45, CH_B, TCCR5A, TCCR5B, TCNT5, OCR5B, TIMSK5, TIFR5},
-    {5, TIMER_16BIT, 46, CH_C, TCCR5A, TCCR5B, TCNT5, OCR5C, TIMSK5, TIFR5},
+    {0, TIMER_8BIT,  13, CH_A, 0x44,  0x45,  0x46,  0x47,  0x6E, 0x35},
+    {0, TIMER_8BIT,   4, CH_B, 0x44,  0x45,  0x46,  0x47,  0x6E, 0x35},
+    {1, TIMER_16BIT, 11, CH_A, 0x80,  0x81,  0x84,  0x88,  0x6F, 0x36},
+    {1, TIMER_16BIT, 12, CH_B, 0x80,  0x81,  0x84,  0x8A,  0x6F, 0x36},
+    {2, TIMER_8BIT,  10, CH_A, 0xB0,  0xB1,  0xB2,  0xB3,  0x70, 0x37},
+    {2, TIMER_8BIT,   9, CH_B, 0xB0,  0xB1,  0xB2,  0xB4,  0x70, 0x37},
+    {3, TIMER_16BIT,  5, CH_A, 0x90,  0x91,  0x94,  0x98,  0x71, 0x38},
+    {3, TIMER_16BIT,  2, CH_B, 0x90,  0x91,  0x94,  0x9A,  0x71, 0x38},
+    {3, TIMER_16BIT,  3, CH_C, 0x90,  0x91,  0x94,  0x9C,  0x71, 0x38},
+    {4, TIMER_16BIT,  6, CH_A, 0xA0,  0xA1,  0xA4,  0xA8,  0x72, 0x39},
+    {4, TIMER_16BIT,  7, CH_B, 0xA0,  0xA1,  0xA4,  0xAA,  0x72, 0x39},
+    {4, TIMER_16BIT,  8, CH_C, 0xA0,  0xA1,  0xA4,  0xAC,  0x72, 0x39},
+    {5, TIMER_16BIT, 44, CH_A, 0x120, 0x121, 0x124, 0x128, 0x73, 0x3A},
+    {5, TIMER_16BIT, 45, CH_B, 0x120, 0x121, 0x124, 0x12A, 0x73, 0x3A},
+    {5, TIMER_16BIT, 46, CH_C, 0x120, 0x121, 0x124, 0x12C, 0x73, 0x3A},
 };
 
 DigitalPin::DigitalPin(int pin) :
@@ -33,79 +34,129 @@ DigitalPin::DigitalPin(int pin) :
             _channel = conf->channel;
             _width = conf->width;
             _OCR = conf->OCR;
-            _TCNT = conf-> TCNT;
+            _TCNT = conf->TCNT;
             _TCCRA = conf->TCCRA;
             _TCCRB = conf->TCCRB;
             _TIMSK = conf->TIMSK;
             _TIFR = conf->TIFR;
             set_TCNT(0);
-            break;
+            return;
         }
     }
 }
 
 int DigitalPin::set_TCCRA(uint8_t reg)
 {
-    return *_TCCRA = reg;
+    return *(volatile uint8_t*)_TCCRA = reg;
 }
 
 int DigitalPin::set_TCCRB(uint8_t reg)
 {
-    return *_TCCRB = reg;
+    return *(volatile uint8_t*)_TCCRB = reg;
 }
 
 int DigitalPin::set_TCNT(uint16_t reg)
 {
-    return *_TCNT = reg;
+    if(_width == TIMER_8BIT) return *(volatile uint8_t *)_TCNT = reg;
+    else 
+    {
+        *(volatile uint8_t*)_TCNT = (uint8_t)reg;
+        *(volatile uint8_t*)(_TCNT + 1) = (uint8_t)(reg >> 8);
+        return reg;
+    }
 }
 
 int DigitalPin::set_OCR(uint16_t reg)
 {
     if(_width == TIMER_8BIT) return *(volatile uint8_t *)_OCR = reg;
-    else return *_OCR = reg;
+    else //*(volatile uint16_t *)(_OCR) = reg;
+    {
+        *(volatile uint8_t*)_OCR = (uint8_t)reg;
+        *(volatile uint8_t*)(_OCR + 1) = (uint8_t)(reg >> 8);
+        return reg;
+    }
 }
 
 int DigitalPin::set_TIMSK(uint8_t reg)
 {
-    return *_TIMSK = reg;
+    return *(volatile uint8_t *)_TIMSK = reg;
 }
 
 int DigitalPin::factor_OCR(uint16_t factor)
 {
     if(_width == TIMER_8BIT) return *(volatile uint8_t *)_OCR /= factor;
-    else return *_OCR /= factor;
+    else return *(volatile uint16_t *)_OCR /= factor;
 }
 
 int DigitalPin::set_COM(com_t val)
 {
-    *_TCCRA &= ~(0x3 << (6 - _channel * 2));
-    return *_TCCRA |= val << (6 - _channel * 2);
+    *(volatile uint8_t *)_TCCRA &= ~(0x3 << (7 - _channel * 2));
+    return *(volatile uint8_t *)_TCCRA |= val << (7 - _channel * 2);
 }
 
 int DigitalPin::set_CS(cs_t val)
 {
-   *_TCCRB &= ~0x7; 
-   return *_TCCRB |= val;
+   *(volatile uint8_t *)_TCCRB &= ~0x7; 
+   return *(volatile uint8_t *)_TCCRB |= val;
 }
 
 int DigitalPin::set_OCIE(bool state)
 {
     state &= 0x1;
-    *_TIMSK &= ~(0x1 << (_channel + 1));
-    return *_TIMSK |= state << (_channel + 1);
+    *(volatile uint8_t *)_TIMSK &= ~(0x1 << (_channel + 1));
+    return *(volatile uint8_t *)_TIMSK |= state << (_channel + 1);
 }
 
 int DigitalPin::set_TOIE(bool state)
 {
     state &= 0x1;
-    *_TIMSK &= ~(0x1);
-    return *_TIMSK |= state;
+    *(volatile uint8_t *)_TIMSK &= ~(0x1);
+    return *(volatile uint8_t *)_TIMSK |= state;
 }
 
 int DigitalPin::set_ICIE(bool state)
 {
     state &= 0x1;
-    *_TIMSK &= ~(1 << 5);
-    return *_TIMSK |= state << 5;
+    *(volatile uint8_t *)_TIMSK &= ~(1 << 5);
+    return *(volatile uint8_t *)_TIMSK |= state << 5;
+}
+
+void DigitalPin::print()
+{
+    Serial.println("~~~~~~~~~~~~~~");
+    Serial.print("pin ");
+    Serial.println(_pin);
+    Serial.print("timer ");
+    Serial.println(_timer);
+    Serial.print("valid timer ");
+    Serial.println(_valid_timer);
+    Serial.print("channel ");
+    Serial.println(_channel);
+    Serial.print("width ");
+    Serial.println(_width);
+    if(_width == TIMER_16BIT){
+        int ocr = *(volatile uint8_t *)(_OCR + 1);
+        int ocrl = *(volatile uint8_t *)_OCR;
+        Serial.print("ocr ");
+        Serial.println((ocr << 8) | ocrl);
+
+        int tcnt = *(volatile uint8_t *)(_TCNT + 1);
+        int tcntl = *(volatile uint8_t *)_TCNT;
+        Serial.print("tcnt ");
+        Serial.println((tcnt << 8) | tcntl);
+    }else{
+        Serial.print("ocr ");
+        Serial.println(*(volatile uint16_t *)_OCR);
+        Serial.print("tcnt ");
+        Serial.println(*(volatile uint16_t *)_TCNT);
+    }
+    Serial.print("tccra ");
+    Serial.println(*(volatile uint8_t *)_TCCRA);
+    Serial.print("tccrb ");
+    Serial.println(*(volatile uint8_t *)_TCCRB);
+    Serial.print("timsk ");
+    Serial.println(*(volatile uint8_t *)_TIMSK);
+    Serial.print("tift ");
+    Serial.println(*(volatile uint8_t *)_TIFR);
 }
 

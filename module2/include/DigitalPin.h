@@ -1,7 +1,6 @@
 #ifndef __DIGITALPIN_H_
 #define __DIGITALPIN_H_
 
-#include <Arduino.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -55,6 +54,7 @@ class DigitalPin
         int set_OCIE(bool state);
         int set_TOIE(bool state);
         int set_ICIE(bool state);
+        void print();
 
         typedef struct
         {
@@ -64,8 +64,8 @@ class DigitalPin
             timer_ch channel;
             uint8_t *TCCRA;
             uint8_t *TCCRB;
-            uint16_t *TCNT;
-            uint16_t *OCR;
+            uint8_t *TCNT;
+            uint8_t *OCR;
             uint8_t *TIMSK;
             uint8_t *TIFR;
         } timer_map_t; 
@@ -76,12 +76,12 @@ class DigitalPin
         bool _valid_timer;
         timer_ch _channel;
         timer_width _width;
-        volatile uint16_t *_OCR;
-        volatile uint16_t *_TCNT;
-        volatile uint8_t *_TCCRA;
-        volatile uint8_t *_TCCRB;
-        volatile uint8_t *_TIMSK;
-        volatile uint8_t *_TIFR;
+        uint8_t *_OCR;
+        uint8_t *_TCNT;
+        uint8_t *_TCCRA;
+        uint8_t *_TCCRB;
+        uint8_t *_TIMSK;
+        uint8_t *_TIFR;
 };
 
 #endif
