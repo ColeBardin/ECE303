@@ -97,10 +97,11 @@ int DigitalPin::set_COM(com_t val)
 
 int DigitalPin::set_CS(cs_t val)
 {
-   uint8_t tccrb = *(volatile byte *)_TCCRB;
-   tccrb &= ~(0x7); 
-   tccrb |= (val & 0x7);
-   return *(volatile byte *)_TCCRB = tccrb;
+    uint8_t tccrb = *(volatile byte *)_TCCRB;
+    tccrb &= ~(0x7);
+    tccrb |= val & 0x7;
+    *(volatile byte *)_TCCRB = tccrb;
+    return tccrb;
 }
 
 int DigitalPin::set_OCIE(bool state)
