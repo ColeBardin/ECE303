@@ -1,5 +1,6 @@
-#include "Safe.h"
 #include <Arduino.h>
+#include <math.h>
+#include "Safe.h"
 
 #define NLEDS 4
 #define T1HZ 31250
@@ -22,7 +23,7 @@ typedef enum
 state_t state = STATE_NULL;
 int code;
 
-int try_again();
+bool try_again();
 void set_LED(DigitalPin l, bool state);
 void set_all_LED(bool state);
 void freq_LED(DigitalPin l, float freq);
@@ -85,7 +86,7 @@ void loop()
                 delay(100);
                 for(int i = 0; i < NLEDS; i++)
                 {
-                    if(ret & (0x1 << i)) freq_LED(l[i], safe.tries + 1);
+                    if(ret & (0x1 << i)) freq_LED(l[i], pow(2, safe.tries));
                     else set_LED(l[i], 0);
                 }
             }
@@ -99,7 +100,7 @@ void loop()
     }
 }
 
-int try_again()
+bool try_again()
 {
     Serial.println("Reset code and try again? [y/n]");
     while(!Serial.available());
@@ -118,10 +119,10 @@ int try_again()
         safe.lock();
         state = STATE_LOCK;
         freq_all_LED(1);
-        return 1;
+        return true;
     }
     Serial.println("Bye :(");
-    return 0;
+    return false;
 }
 
 void set_LED(DigitalPin l, bool state)
