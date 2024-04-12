@@ -4,7 +4,7 @@
 #define NLEDS 4
 #define T1HZ 31250
 
-Safe safe(2);
+Safe safe(5);
 DigitalPin l[] = 
 {
     DigitalPin(5),
@@ -20,7 +20,9 @@ typedef enum
     STATE_FAIL
 } state_t;
 state_t state = STATE_NULL;
+int code;
 
+int try_again();
 void set_LED(DigitalPin l, bool state);
 void set_all_LED(bool state);
 void freq_LED(DigitalPin l, float freq);
@@ -28,6 +30,7 @@ void freq_all_LED(float freq);
 
 void setup()
 {
+    randomSeed(analogRead(0));
     Serial.begin(9600);
     for(int i = 0; i < NLEDS; i++)
     {
@@ -38,9 +41,7 @@ void setup()
         l[i].set_CS(CS_PS_256);
         freq_LED(l[i], 1);
     }
-    
-    randomSeed(analogRead(0));
-    int code = random(10000);
+    code = random(10000);
     Serial.print("Setting safe code to: ");
     Serial.println(code);
     safe.set_code(code);
@@ -54,6 +55,10 @@ void loop()
     int ret;
     switch(state)
     {
+        case STATE_NULL:
+            Serial.println("ERROR: cannot run in STATE_NULL");
+            while(1) delay(10);
+            break;
         case STATE_LOCK:
             Serial.println("Safe is LOCKED. Enter 4 digit number");
             while(!Serial.available());
@@ -61,98 +66,105 @@ void loop()
             Serial.print("Trying code: ");
             Serial.println(guess);
             ret = safe.unlock(guess);
-            switch(ret)
+            if(ret == -1)
             {
-                case -1:
-                    set_all_LED(1);
-                    state = STATE_FAIL;
-                    Serial.println("Out of attempts");
-                    break;
-                case 0:
-                    set_all_LED(0);
-                    state = STATE_UNLOCK;
-                    Serial.println("Success!");
-                    break;
-                default:
-                    Serial.println("Incorrect");
-                    break;
+                Serial.println("Out of attempts");
+                set_all_LED(1);
+                state = STATE_FAIL;
+            }
+            else if(ret == 0)
+            {
+                Serial.println("Success!");
+                set_all_LED(0);
+                state = STATE_UNLOCK;
+            }
+            else
+            {
+                Serial.println("Incorrect");
+                set_all_LED(0);
+                delay(100);
+                for(int i = 0; i < NLEDS; i++)
+                {
+                    if(ret & (0x1 << i)) freq_LED(l[i], safe.tries + 1);
+                    else set_LED(l[i], 0);
+                }
             }
             break;
         case STATE_UNLOCK:
-            break;
+            Serial.println("Unlocked");
         case STATE_FAIL:
-            break;
-        default:
+            if(try_again()) break;
+            else while(1) delay(10);
             break;
     }
-    //Serial.println("Safe is LOCKED. Enter 4 digit number");
-    //safe.print();
-    //p.print();
-    //delay(1000);
-    /*
-    int guess;
-    while(safe.on)
+}
+
+int try_again()
+{
+    Serial.println("Reset code and try again? [y/n]");
+    while(!Serial.available());
+    String resp = Serial.readString();
+    resp.toLowerCase();
+    resp.trim();
+    Serial.print("input: ");
+    Serial.println(resp);
+    if(resp.equals("y"))
     {
-        while(!Serial.available());
-        guess = Serial.readString().toInt();
-        Serial.print("Trying code: ");
-        Serial.println(guess);
-        if(!safe.unlock(guess))
-        {
-            Serial.println("Unlocked");   
-            while(1) delay(10);
-        }
-        Serial.println("Incorrect. Try again");
+        safe._force_reset();
+        code = random(10000);
+        Serial.print("Setting safe code to: ");
+        Serial.println(code);
+        safe.set_code(code);
+        safe.lock();
+        state = STATE_LOCK;
+        freq_all_LED(1);
+        return 1;
     }
-    Serial.println("Out of attempts :(");
-    while(1) delay(10);
-    */
+    Serial.println("Bye :(");
+    return 0;
 }
 
 void set_LED(DigitalPin l, bool state)
 {
-    noInterrupts();
     l.set_OCIE(false);
-    digitalWrite(l._pin, state);
-    interrupts();
+    l.write(state);
 }
 
 void set_all_LED(bool state)
 {
+    noInterrupts();
     for(int i = 0; i < NLEDS; i++) set_LED(l[i], state);
+    interrupts();
 }
 
 void freq_LED(DigitalPin l, float freq)
 {
-    noInterrupts();
     l.set_OCR((uint16_t)((float)T1HZ / freq));
+    l.set_TCNT(0);
     l.set_OCIE(true);
-    interrupts();
 }
 
 void freq_all_LED(float freq)
 {
+    noInterrupts();
     for(int i = 0; i < NLEDS; i++) freq_LED(l[i], freq);
+    interrupts();
 }
 
 ISR(TIMER5_COMPA_vect)
 {
-    static bool state = false;
-    digitalWrite(44, state = !state);
+    l[3].write(!l[3]._state);
 }
 ISR(TIMER1_COMPA_vect)
 {
-    static bool state = false;
-    digitalWrite(11, state = !state);
+    l[2].write(!l[2]._state);
 }
 ISR(TIMER4_COMPA_vect)
 {
-    static bool state = false;
-    digitalWrite(6, state = !state);
+    l[1].write(!l[1]._state);
 }
 ISR(TIMER3_COMPA_vect)
 {
-    static bool d5 = false;
-    digitalWrite(5, d5 = !d5);
+    l[0].write(!l[0]._state);
 }
 

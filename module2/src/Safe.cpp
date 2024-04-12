@@ -5,8 +5,7 @@ Safe::Safe(int attempts) :
     locked(false),
     tries(0),
     _code(0),
-    _attempts(attempts),
-    _duty(1)
+    _attempts(attempts)
 {
 }
 
@@ -48,4 +47,11 @@ int Safe::set_code(int code)
     if(code > 9999 || code < 0) return 1;
     _code = code;
     return 0;
+}
+
+void Safe::_force_reset()
+{
+    locked = false;
+    on = true;
+    tries = 0;
 }

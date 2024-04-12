@@ -22,6 +22,7 @@ DigitalPin::timer_map_t tmap[NTIMERS] =
 };
 
 DigitalPin::DigitalPin(int pin) :
+    _state(false),
     _pin(pin),
     _valid_timer(false)
 {
@@ -46,6 +47,12 @@ DigitalPin::DigitalPin(int pin) :
             return;
         }
     }
+}
+
+void DigitalPin::write(bool state)
+{
+    _state = state;
+    digitalWrite(_pin, state);
 }
 
 int DigitalPin::set_TCCRA(uint8_t reg)

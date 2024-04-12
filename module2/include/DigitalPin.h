@@ -42,9 +42,11 @@ typedef enum
 class DigitalPin
 {
     public:
+        bool _state;
         int _pin;
         int _timer;
         DigitalPin(int pin);
+        void print();
         int set_TCCRA(uint8_t reg);
         int set_TCCRB(uint8_t reg);
         int set_TCNT(uint16_t reg);
@@ -56,7 +58,7 @@ class DigitalPin
         int set_OCIE(bool state);
         int set_TOIE(bool state);
         int set_ICIE(bool state);
-        void print();
+        void write(bool state);
 
         typedef struct
         {

@@ -15,10 +15,10 @@ class Safe
         int lock(); 
         int set_code(int code);
         void print();
+        void _force_reset();
     private:
         int _code;
         int _attempts; 
-        int _duty;
 };
 
 #endif // _SAFE_H_
