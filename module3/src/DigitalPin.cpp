@@ -225,7 +225,7 @@ int DigitalPin::set_COM(com_t val)
     uint8_t tccra = *_TCCRA;
     tccra &= ~(0x3 << (6 - _channel * 2));
     tccra |= val << (6 - _channel * 2);
-    return *(volatile byte *)_TCCRA = tccra;
+    return *_TCCRA = tccra;
 }
 
 int DigitalPin::set_CS(cs_t val)
@@ -233,8 +233,7 @@ int DigitalPin::set_CS(cs_t val)
     uint8_t tccrb = *_TCCRB;
     tccrb &= ~(0x7);
     tccrb |= val & 0x7;
-    *(volatile byte *)_TCCRB = tccrb;
-    return tccrb;
+    return *_TCCRB = tccrb;
 }
 
 int DigitalPin::set_OCIE(bool state)
@@ -243,7 +242,7 @@ int DigitalPin::set_OCIE(bool state)
     uint8_t timsk = *_TIMSK;
     timsk &= ~(0x1 << (_channel + 1));
     timsk |= state << (_channel + 1);
-    return *(volatile byte *)_TIMSK = timsk;
+    return *_TIMSK = timsk;
 }
 
 int DigitalPin::set_TOIE(bool state)
