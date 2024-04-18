@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 #define NTIMERS 15
+#define NPINS 70
 
 typedef enum 
 {
@@ -39,14 +40,42 @@ typedef enum
     CS_EX_T1_RISING
 } cs_t;
 
+typedef enum
+{
+    PORT_A,
+    PORT_B,
+    PORT_C,
+    PORT_D,
+    PORT_E,
+    PORT_F,
+    PORT_G,
+    PORT_H,
+    PORT_J,
+    PORT_K,
+    PORT_L
+} port_t;
+typedef enum
+{
+    GPIO_NULL,
+    GPIO_OUTPUT,
+    GPIO_INPUT,
+    GPIO_ANALOG,
+} gpio_mode_t;
+
 class DigitalPin
 {
     public:
-        bool _state;
+        int _ide;
+        port_t _port;
         int _pin;
         int _timer;
+        gpio_mode_t _mode;
+
         DigitalPin(int pin);
+        DigitalPin(port_t port, int pin);
+        int set_pin(gpio_mode_t mode);
         void write(bool state);
+        void toggle();
         bool read();
         uint16_t readAnalog();
         int set_TCCRA(uint8_t reg);
@@ -60,8 +89,14 @@ class DigitalPin
         int set_OCIE(bool state);
         int set_TOIE(bool state);
         int set_ICIE(bool state);
-        void print();
 
+        typedef struct
+        {
+            int pinIDE;
+            port_t port;
+            int pin;
+            uint32_t PORTR;
+        } pin_map_t;
         typedef struct
         {
             int timer;
@@ -77,20 +112,27 @@ class DigitalPin
             uint32_t TIMSK;
             uint32_t TIFR;
         } timer_map_t; 
-
     private:
+        bool _valid;
         bool _valid_timer;
         timer_ch _channel;
         timer_width _width;
-        uint32_t _OCRL;
-        uint32_t _OCRH;
-        uint32_t _TCNTL;
-        uint32_t _TCNTH;
-        uint32_t _TCCRA;
-        uint32_t _TCCRB;
-        uint32_t _TIMSK;
-        uint32_t _TIFR;
+        volatile uint8_t *_DDR;
+        volatile uint8_t *_PORT;
+        volatile uint8_t *_PIN;
+        volatile uint8_t *_OCRL;
+        volatile uint8_t *_OCRH;
+        volatile uint8_t *_TCNTL;
+        volatile uint8_t *_TCNTH;
+        volatile uint8_t *_TCCRA;
+        volatile uint8_t *_TCCRB;
+        volatile uint8_t *_TIMSK;
+        volatile uint8_t *_TIFR;
 };
 
 #endif
 
+// PORTX pin output status
+    // 0 LOW, 1 HIGH
+// PINX pin intput status
+    // 0 LOW, 1 HIGH
