@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <Arduino.h>
 
 #define NTIMERS 15
 #define NPINS 70
@@ -72,7 +73,7 @@ class DigitalPin
         gpio_mode_t _mode;
 
         DigitalPin(int pin);
-        DigitalPin(port_t port, int pin);
+        //DigitalPin(port_t port, int pin);
         int set_pin(gpio_mode_t mode);
         void write(bool state);
         void toggle();
@@ -95,7 +96,7 @@ class DigitalPin
             int pinIDE;
             port_t port;
             int pin;
-            uint32_t PORTR;
+            int PORTR;
         } pin_map_t;
         typedef struct
         {

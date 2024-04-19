@@ -134,10 +134,12 @@ DigitalPin::DigitalPin(int pin) :
         }
     }
 }
+/*
 DigitalPin::DigitalPin(port_t port, int pin)
 {
     // TODO: fill out init function for PORT and PIN ctor
 }
+*/
 
 int DigitalPin::set_pin(gpio_mode_t mode)
 {
