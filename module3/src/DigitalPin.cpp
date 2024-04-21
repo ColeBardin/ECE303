@@ -185,83 +185,118 @@ uint16_t DigitalPin::readAnalog()
 
 int DigitalPin::set_TCCRA(uint8_t reg)
 {
-    return *_TCCRA = reg;
+    if(_valid_timer) return *_TCCRA = reg;
+    else return -1;
 }
 
 int DigitalPin::set_TCCRB(uint8_t reg)
 {
-    return *_TCCRB = reg;
+    if(_valid_timer) return *_TCCRB = reg;
+    else return -1;
 }
 
 int DigitalPin::set_TCNT(uint16_t reg)
 {
-    if(_width == TIMER_16BIT) *_TCNTH = reg >> 8;
-    *_TCNTL = (uint8_t)reg;
-    return reg;
+    if(_valid_timer)
+    {
+        if(_width == TIMER_16BIT) *_TCNTH = reg >> 8;
+        *_TCNTL = (uint8_t)reg;
+        return reg;
+    }
+    else return -1;
 }
 
 int DigitalPin::set_OCR(uint16_t reg)
 {
-    if(_width == TIMER_16BIT) *_OCRH = reg >> 8;
-    *_OCRL = (uint8_t)reg;
-    return reg;
+    if(_valid_timer)
+    {
+        if(_width == TIMER_16BIT) *_OCRH = reg >> 8;
+        *_OCRL = (uint8_t)reg;
+        return reg;
+    }
+    else return 1;
 }
 
 int DigitalPin::set_TIMSK(uint8_t reg)
 {
-    return *_TIMSK = reg;
+    if(_valid_timer) return *_TIMSK = reg;
+    else return -1;
 }
 
 int DigitalPin::factor_OCR(float factor)
 {
-    uint16_t ocr = *_OCRL;
-    if(_width == TIMER_16BIT) ocr |= (uint16_t)(*_OCRH) << 8;
-    ocr = (uint16_t)((float)ocr / factor);
-    set_OCR(ocr);
-    set_TCNT(0);
-    return 0;
+    if(_valid_timer)
+    {
+        uint16_t ocr = *_OCRL;
+        if(_width == TIMER_16BIT) ocr |= (uint16_t)(*_OCRH) << 8;
+        ocr = (uint16_t)((float)ocr / factor);
+        set_OCR(ocr);
+        set_TCNT(0);
+        return 0;
+    }
+    else return -1;
 }
 
 int DigitalPin::set_COM(com_t val)
 {
-    uint8_t tccra = *_TCCRA;
-    tccra &= ~(0x3 << (6 - _channel * 2));
-    tccra |= val << (6 - _channel * 2);
-    return *_TCCRA = tccra;
+    if(_valid_timer)
+    {
+        uint8_t tccra = *_TCCRA;
+        tccra &= ~(0x3 << (6 - _channel * 2));
+        tccra |= val << (6 - _channel * 2);
+        return *_TCCRA = tccra;
+    }
+    else return -1;
 }
 
 int DigitalPin::set_CS(cs_t val)
 {
-    uint8_t tccrb = *_TCCRB;
-    tccrb &= ~(0x7);
-    tccrb |= val & 0x7;
-    return *_TCCRB = tccrb;
+    if(_valid_timer)
+    {
+        uint8_t tccrb = *_TCCRB;
+        tccrb &= ~(0x7);
+        tccrb |= val & 0x7;
+        return *_TCCRB = tccrb;
+    }
+    else return -1;
 }
 
 int DigitalPin::set_OCIE(bool state)
 {
-    state &= 0x1;
-    uint8_t timsk = *_TIMSK;
-    timsk &= ~(0x1 << (_channel + 1));
-    timsk |= state << (_channel + 1);
-    return *_TIMSK = timsk;
+    if(_valid_timer)
+    {
+        state &= 0x1;
+        uint8_t timsk = *_TIMSK;
+        timsk &= ~(0x1 << (_channel + 1));
+        timsk |= state << (_channel + 1);
+        return *_TIMSK = timsk;
+    }
+    else return -1;
 }
 
 int DigitalPin::set_TOIE(bool state)
 {
-    state &= 0x1;
-    uint8_t timsk = *_TIMSK;
-    timsk &= ~(0x1);
-    timsk |= state;
-    return *_TIMSK = timsk;
+    if(_valid_timer)
+    {
+        state &= 0x1;
+        uint8_t timsk = *_TIMSK;
+        timsk &= ~(0x1);
+        timsk |= state;
+        return *_TIMSK = timsk;
+    }
+    else return -1;
 }
 
 int DigitalPin::set_ICIE(bool state)
 {
-    state &= 0x1;
-    uint8_t timsk = *_TIMSK;
-    timsk &= ~(1 << 5);
-    timsk |= state << 5;
-    return *_TIMSK = timsk;
+    if(_valid_timer)
+    {
+        state &= 0x1;
+        uint8_t timsk = *_TIMSK;
+        timsk &= ~(1 << 5);
+        timsk |= state << 5;
+        return *_TIMSK = timsk;
+    }
+    else return -1;
 }
 
