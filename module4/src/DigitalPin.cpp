@@ -263,23 +263,27 @@ int DigitalPin::set_CS(cs_t val)
 
 int DigitalPin::set_WGN(uint8_t val)
 {
-    uint8_t tccra = *_TCCRA;
-    uint8_t tccrb = *_TCCRB;
-
-    tccra &= ~(0x3);
-    tccra |= (val & 0x3);
-
-    if(_width == TIMER_8BIT)
+    if(_valid_timer)
     {
-        tccrb &= ~(0x1 << 3); 
-        tccrb |= (val & 0x4) << 1;
+        uint8_t tccra = *_TCCRA;
+        uint8_t tccrb = *_TCCRB;
+
+        tccra &= ~(0x3);
+        tccra |= (val & 0x3);
+
+        if(_width == TIMER_8BIT)
+        {
+            tccrb &= ~(0x1 << 3); 
+            tccrb |= (val & 0x4) << 1;
+        }
+        else
+        {
+            tccrb &= ~(0x3 << 3); 
+            tccrb |= (val & 0xC) << 1;
+        }
+        return 0;
     }
-    else
-    {
-        tccrb &= ~(0x3 << 3); 
-        tccrb |= (val & 0xC) << 1;
-    }
-    return 0;
+    else return 1;
 }
 
 int DigitalPin::set_OCIE(bool state)
