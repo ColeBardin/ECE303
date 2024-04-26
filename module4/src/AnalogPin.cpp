@@ -15,15 +15,14 @@ AnalogPin::AnalogPin(analogpin_number pin) :
     _ADMUX =  (volatile uint8_t *)0x7C;
 }
 
-int AnalogPin::read()
+uint16_t AnalogPin::read()
 {
     if(!_valid) return 1;
     select_ADC();
     set_ADC(true);
     start_conv();
-    while(*_ADCSRA & 0x40);
+    while(*_ADCSRA & (1 << 0x6));
     _count = get_count();
-    set_ADC(false);
     return _count;
 }
 
@@ -51,13 +50,13 @@ int AnalogPin::set_ADC(bool state)
     if(!_valid) return 1;
     if(state) *_ADCSRA |= 1 << 7;
     else *_ADCSRA &= ~(1 << 7);
-
     return 0;
 }
 
 int AnalogPin::set_prescaler(uint8_t ps)
 {
     if(!_valid) return 1;
+    *_ADCSRA &= ~(0x7);
     *_ADCSRA |= ps & 0x7;
     return 0;
 }
@@ -69,16 +68,20 @@ int AnalogPin::start_conv()
     return 0;
 }
 
-int AnalogPin::get_count()
+uint16_t AnalogPin::get_count()
 {
-    if(!_valid) return -1;
-    return (int)*_ADCL | (((int)*_ADCH) << 8);
+    if(!_valid) return 0;
+    uint16_t l = ADCL;
+    uint16_t h = ADCH;
+    return l | (h << 8);
 }
 
 void AnalogPin::print()
 {
     Serial.print("A");
     Serial.println(_adc);
+    Serial.print("Valid ");
+    Serial.println(_valid);
 
     Serial.print("ADMUX(0x");
     Serial.print((uint32_t)_ADMUX, HEX);
