@@ -6,7 +6,7 @@
 #include <Arduino.h>
 
 #define NTIMERS 15
-#define NPINS 70
+#define NDPINS 70
 
 typedef enum 
 {
@@ -60,7 +60,6 @@ typedef enum
     GPIO_NULL,
     GPIO_OUTPUT,
     GPIO_INPUT,
-    GPIO_ANALOG,
 } gpio_mode_t;
 
 class DigitalPin
@@ -78,7 +77,6 @@ class DigitalPin
         void write(bool state);
         void toggle();
         bool read();
-        uint16_t readAnalog();
         int set_TCCRA(uint8_t reg);
         int set_TCCRB(uint8_t reg);
         int set_TCNT(uint16_t reg);
@@ -98,7 +96,7 @@ class DigitalPin
             port_t port;
             int pin;
             int PORTR;
-        } pin_map_t;
+        } dpin_map_t;
         typedef struct
         {
             int timer;

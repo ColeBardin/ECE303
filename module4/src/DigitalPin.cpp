@@ -20,7 +20,7 @@ DigitalPin::timer_map_t tmap[NTIMERS] =
     {5, TIMER_16BIT, 45, CH_B, 0x120, 0x121, 0x124, 0x125, 0x12A, 0x12B, 0x73, 0x3A},
     {5, TIMER_16BIT, 46, CH_C, 0x120, 0x121, 0x124, 0x125, 0x12C, 0x12D, 0x73, 0x3A},
 };
-DigitalPin::pin_map_t pmap[NPINS] = 
+DigitalPin::dpin_map_t dpmap[NDPINS] = 
 {
 //  IDE  port   pin PORTR 
     { 0, PORT_E, 0, 0x2E},
@@ -100,17 +100,16 @@ DigitalPin::DigitalPin(int pin) :
     _valid(false),
     _valid_timer(false)
 {
-    if(pin >= NPINS || pin < 0) return;
+    if(pin >= NDPINS || pin < 0) return;
     int i;
 
     _valid = true;
-    pin_map_t pin_map = pmap[_ide];
+    dpin_map_t pin_map = dpmap[_ide];
     _port = pin_map.port;
     _pin = pin_map.pin;
     _PORT = (volatile uint8_t *)pin_map.PORTR;
     _DDR = (volatile uint8_t *)(pin_map.PORTR - 1);
     _PIN = (volatile uint8_t *)(pin_map.PORTR - 2);
-    // TODO: set analog regs
 
     for(i = 0; i < NTIMERS; i++)
     {
@@ -156,9 +155,6 @@ int DigitalPin::set_pin(gpio_mode_t mode)
         case GPIO_INPUT:
             *_DDR &= ~(1 << _pin); 
             return 0;
-        case GPIO_ANALOG:
-            // TODO: handle analog shiiz
-            break;
     };
     return 0;
 }
@@ -176,11 +172,6 @@ void DigitalPin::toggle()
 bool DigitalPin::read()
 {
     return (*_PIN >> _pin) & 0x1;
-}
-
-uint16_t DigitalPin::readAnalog()
-{
-    return (0 & 1023);
 }
 
 int DigitalPin::set_TCCRA(uint8_t reg)
