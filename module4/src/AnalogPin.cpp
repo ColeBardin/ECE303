@@ -1,26 +1,6 @@
 #include "AnalogPin.h"
 #include <Arduino.h>
 
-AnalogPin::apin_map_t apmap[NAPINS] = 
-{
-    {54, PORT_F, 0},
-    {55, PORT_F, 1},
-    {56, PORT_F, 2},
-    {57, PORT_F, 3},
-    {58, PORT_F, 4},
-    {59, PORT_F, 5},
-    {60, PORT_F, 6},
-    {61, PORT_F, 7},
-    {62, PORT_K, 0},
-    {63, PORT_K, 1},
-    {64, PORT_K, 2},
-    {65, PORT_K, 3},
-    {66, PORT_K, 4},
-    {67, PORT_K, 5},
-    {68, PORT_K, 6},
-    {69, PORT_K, 7},
-};
-
 AnalogPin::AnalogPin(analogpin_number pin) :
     _adc(pin),
     _valid(false)
@@ -32,11 +12,6 @@ AnalogPin::AnalogPin(analogpin_number pin) :
     _ADCSRA = (volatile uint8_t *)0x7A;
     _ADCSRB = (volatile uint8_t *)0x7B;
     _ADMUX =  (volatile uint8_t *)0x7C;
-
-    AnalogPin::apin_map_t *conf = &apmap[pin];
-    _ide = conf->pinIDE;
-    _port = conf->port;
-    _pin = conf->pin;
 }
 
 int AnalogPin::read()

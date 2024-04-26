@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "DigitalPin.h"
+#include "AnalogPin.h"
 
 void setup()
 {
