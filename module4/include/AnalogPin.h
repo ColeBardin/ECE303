@@ -31,16 +31,18 @@ class AnalogPin
 {
     public:
         int _adc;
+        int _count;
 
         AnalogPin(analogpin_number pin);
         //AnalogPin(port_t port, int pin);
         int read();
         int select_ADC();
-        int set_REF(uint8_t ref);
+        int set_ref(uint8_t ref);
         int set_ADC(bool state);
         int set_prescaler(uint8_t ps);
         int start_conv();
         int get_count();
+        void print();
     private:
         bool _valid;
         volatile uint8_t *_ADMUX;
