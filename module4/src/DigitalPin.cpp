@@ -122,6 +122,11 @@ DigitalPin::DigitalPin(int pin) :
             _width = conf->width;
             _OCRL = (volatile uint8_t *)conf->OCRL;
             _OCRH = (volatile uint8_t *)conf->OCRH;
+            if(_OCRH != NULL)
+            {
+                _ICRL = (volatile uint8_t *)(conf->OCRL - 2);
+                _ICRH = (volatile uint8_t *)(conf->OCRH - 2);
+            }
             _TCNTL = (volatile uint8_t *)conf->TCNTL;
             _TCNTH = (volatile uint8_t *)conf->TCNTH;
             _TCCRA = (volatile uint8_t *)conf->TCCRA;
@@ -256,21 +261,18 @@ int DigitalPin::set_WGN(uint8_t val)
 {
     if(_valid_timer)
     {
-        uint8_t tccra = *_TCCRA;
-        uint8_t tccrb = *_TCCRB;
-
-        tccra &= ~(0x3);
-        tccra |= (val & 0x3);
+        *_TCCRA &= ~(0x3);
+        *_TCCRA |= (val & 0x3);
 
         if(_width == TIMER_8BIT)
         {
-            tccrb &= ~(0x1 << 3); 
-            tccrb |= (val & 0x4) << 1;
+            *_TCCRB &= ~(0x1 << 3); 
+            *_TCCRB |= (val & 0x4) << 1;
         }
         else
         {
-            tccrb &= ~(0x3 << 3); 
-            tccrb |= (val & 0xC) << 1;
+            *_TCCRB &= ~(0x3 << 3); 
+            *_TCCRB |= (val & 0xC) << 1;
         }
         return 0;
     }
@@ -316,3 +318,62 @@ int DigitalPin::set_ICIE(bool state)
     else return -1;
 }
 
+int DigitalPin::set_ICR(uint16_t reg)
+{
+    if(_valid_timer)
+    {
+        if(_width == TIMER_16BIT) *_ICRH = reg >> 8;
+        *_ICRL = (uint8_t)reg;
+        return reg;
+    }
+    else return 1;
+}
+
+int DigitalPin::set_duty_cycle(float duty)
+{
+    if(_valid_timer)
+    {
+        return 0;
+    }
+    else return -1;
+}
+
+void DigitalPin::print()
+{
+    Serial.print("P");
+    Serial.println(_ide);
+    Serial.print("Valid Timer ");
+    Serial.println(_valid_timer);
+
+    Serial.print("TCCRA(0x");
+    Serial.print((uint32_t)_TCCRA, HEX);
+    Serial.print("): 0b");
+    Serial.println(*_TCCRA, BIN);
+    
+    Serial.print("TCCRB(0x");
+    Serial.print((uint32_t)_TCCRB, HEX);
+    Serial.print("): 0b");
+    Serial.println(*_TCCRB, BIN);
+
+    Serial.print("TIMSK(0x");
+    Serial.print((uint32_t)_TIMSK, HEX);
+    Serial.print("): 0b");
+    Serial.println(*_TIMSK, BIN);
+
+    Serial.print("DDR(0x");
+    Serial.print((uint32_t)_DDR, HEX);
+    Serial.print("): 0b");
+    Serial.println(*_DDR, BIN);
+
+    Serial.print("PORT(0x");
+    Serial.print((uint32_t)_PORT, HEX);
+    Serial.print("): 0b");
+    Serial.println(*_PORT, BIN);
+
+    Serial.print("PIN(0x");
+    Serial.print((uint32_t)_PIN, HEX);
+    Serial.print("): 0b");
+    Serial.println(*_PIN, BIN);
+
+    Serial.println();
+}

@@ -89,6 +89,9 @@ class DigitalPin
         int set_OCIE(bool state);
         int set_TOIE(bool state);
         int set_ICIE(bool state);
+        int set_ICR(uint16_t reg);
+        int set_duty_cycle(float duty);
+        void print();
 
         typedef struct
         {
@@ -122,6 +125,8 @@ class DigitalPin
         volatile uint8_t *_PIN;
         volatile uint8_t *_OCRL;
         volatile uint8_t *_OCRH;
+        volatile uint8_t *_ICRL;
+        volatile uint8_t *_ICRH;
         volatile uint8_t *_TCNTL;
         volatile uint8_t *_TCNTH;
         volatile uint8_t *_TCCRA;
@@ -132,7 +137,3 @@ class DigitalPin
 
 #endif
 
-// PORTX pin output status
-    // 0 LOW, 1 HIGH
-// PINX pin intput status
-    // 0 LOW, 1 HIGH
