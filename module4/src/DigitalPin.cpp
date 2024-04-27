@@ -148,8 +148,6 @@ DigitalPin::DigitalPin(port_t port, int pin)
 int DigitalPin::set_pin(gpio_mode_t mode)
 {
     _mode = mode;
-// DDRX sets input vs output
-    // 0 input, 1 output
     switch(mode)
     {
         case GPIO_NULL:
@@ -223,8 +221,7 @@ int DigitalPin::factor_OCR(float factor)
 {
     if(_valid_timer)
     {
-        uint16_t ocr = *_OCRL;
-        if(_width == TIMER_16BIT) ocr |= (uint16_t)(*_OCRH) << 8;
+        uint16_t ocr = read_OCR();
         ocr = (uint16_t)((float)ocr / factor);
         set_OCR(ocr);
         set_TCNT(0);
@@ -329,11 +326,49 @@ int DigitalPin::set_ICR(uint16_t reg)
     else return 1;
 }
 
-int DigitalPin::set_duty_cycle(float duty)
+int DigitalPin::set_duty_cycle(int duty)
 {
     if(_valid_timer)
     {
+        if(duty > 100) duty = 100;
+        if(duty < 0) duty = 0;
+        uint16_t icr = read_ICR();
+        uint16_t val = (float)icr * (float)duty / 100.0;
+        set_OCR(val); 
         return 0;
+    }
+    else return -1;
+}
+
+uint16_t DigitalPin::read_OCR()
+{
+    if(_valid_timer)
+    {
+        uint16_t ocr = *_OCRL;
+        if(_width == TIMER_16BIT) ocr |= (uint16_t)(*_OCRH) << 8;
+        return ocr;
+    }
+    else return -1;
+}
+
+uint16_t DigitalPin::read_ICR()
+{
+    if(_valid_timer)
+    {
+        uint16_t icr = *_ICRL;
+        if(_width == TIMER_16BIT) icr |= (uint16_t)(*_ICRH) << 8;
+        return icr;
+    }
+    else return -1;
+}
+
+uint16_t DigitalPin::read_TCNT()
+{
+    if(_valid_timer)
+    {
+        uint16_t tcnt = *_TCNTL;
+        if(_width == TIMER_16BIT) tcnt |= (uint16_t)(*_TCNTH) << 8;
+        return tcnt;
     }
     else return -1;
 }
@@ -377,3 +412,4 @@ void DigitalPin::print()
 
     Serial.println();
 }
+

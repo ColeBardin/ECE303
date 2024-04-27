@@ -2,8 +2,8 @@
 #include "DigitalPin.h"
 #include "AnalogPin.h"
 
-#define PWM_TOP (int)5000
-#define PMW_BOT (int)1 
+#define PWM_TOP (int)12500
+#define PMW_BOT (int)0 
 
 AnalogPin a(A_0);
 DigitalPin p(6);
@@ -31,8 +31,14 @@ void setup()
 void loop()
 {
     count = a.read(); 
-    duty = PWM_TOP / 1023 * (int)count;
-    p.set_OCR(duty); 
+    duty = (float)count * 100.0 / 1023.0;
+    p.set_duty_cycle(duty); 
+    /*
+    Serial.print("duty ");
+    Serial.println(duty);
+    Serial.print("count ");
+    Serial.println(p.read_OCR());
+    */
     /*
     p.set_OCR(PWM_TOP * count / 100);
     count += 5;

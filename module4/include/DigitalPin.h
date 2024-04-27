@@ -90,7 +90,10 @@ class DigitalPin
         int set_TOIE(bool state);
         int set_ICIE(bool state);
         int set_ICR(uint16_t reg);
-        int set_duty_cycle(float duty);
+        int set_duty_cycle(int duty);
+        uint16_t read_OCR();
+        uint16_t read_ICR();
+        uint16_t read_TCNT();
         void print();
 
         typedef struct
