@@ -1,0 +1,31 @@
+#include <Arduino.h>
+#include "DigitalPin.h"
+
+// PS 8 -> f 3.921 KHz
+// 65535 / 3.921 = 16713 == 1 KHz
+#define PWM_TOP 16713
+
+DigitalPin p(6);
+int duty;
+
+void setup()
+{
+    Serial.begin(9600);
+    p.set_COM(COM_CLEAR);
+    p.set_CS(CS_PS_8);
+    p.set_WGN(0x0E);
+    p.set_ICR(PWM_TOP);
+    p.set_OCR(0);
+    p.set_TCNT(0);
+    p.set_pin(GPIO_OUTPUT);
+    duty = 5;
+}
+
+void loop()
+{
+    p.set_duty_cycle(duty); 
+    duty += 5;
+    if(duty > 95) duty = 5;
+    delay(100);
+}
+
