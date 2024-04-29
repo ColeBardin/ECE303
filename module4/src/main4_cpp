@@ -10,10 +10,10 @@
 
 DigitalPin pwm[NLEDS] =
 {
+    DigitalPin(12),
     DigitalPin(11),
     DigitalPin(6),
     DigitalPin(5),
-    DigitalPin(12),
 };
 
 float duty;
