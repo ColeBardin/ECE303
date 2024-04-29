@@ -1,0 +1,61 @@
+#include <Arduino.h>
+#include "AnalogPin.h"
+#include "DigitalPin.h"
+
+// PS 8 -> f 3.921 KHz
+// 65535 / 3.921 = 16713 == 1 KHz
+#define PWM_TOP 16713
+
+AnalogPin pc(A_0);
+DigitalPin d(11);
+
+int pc_count;
+float pc_volt;
+float lr_volt;
+float duty;
+
+void setup()
+{
+    Serial.begin(9600);
+    pc.set_ref(0x1);
+    pc.set_prescaler(0x0);
+
+    d.set_COM(COM_CLEAR);
+    d.set_CS(CS_PS_8);
+    d.set_WGN(0x0E);
+    d.set_ICR(PWM_TOP);
+    d.set_OCR(0);
+    d.set_TCNT(0);
+    d.set_pin(GPIO_OUTPUT);
+    duty = 5.0;
+}
+
+void loop()
+{
+    pc_count = pc.read(); 
+    pc_volt = (float)pc_count * 5.0 / 1023.0;
+    lr_volt = (float)lr_count * 5.0 / 1023.0;
+
+    d.set_duty_cycle(duty);
+    duty += 5.0;
+    if(duty > 95.0) duty = 5.0;
+
+    Serial.println();
+
+    Serial.print("Duty: ");
+    Serial.print(duty);
+    Serial.println("%");
+
+    Serial.print("LED Resistor: ");
+    Serial.print(lr_volt);
+    Serial.println("V");
+
+    Serial.print("Photocell Resistor: ");
+    Serial.print(pc_volt);
+    Serial.print("V (");
+    Serial.print(pc_count);
+    Serial.println(" count)");
+
+    delay(2000);
+}
+
