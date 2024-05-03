@@ -2,12 +2,12 @@
 #include "AnalogPin.h"
 #include "DigitalPin.h"
 
-// PS 8 -> f 3.921 KHz
-// 65535 / 3.921 = 16713 == 1 KHz
-#define PWM_TOP 16713
+/* Experiment 3 */
+
+#define PWM_TOP 15684
 
 AnalogPin pc(A_0);
-DigitalPin d(11);
+DigitalPin d(5);
 
 int pc_count;
 float pc_volt;
@@ -18,10 +18,10 @@ void setup()
 {
     Serial.begin(9600);
     pc.set_ref(0x1);
-    pc.set_prescaler(0x0);
+    pc.set_prescaler(0x7);
 
     d.set_COM(COM_CLEAR);
-    d.set_CS(CS_PS_8);
+    d.set_CS(CS_PS_1);
     d.set_WGN(0x0E);
     d.set_ICR(PWM_TOP);
     d.set_OCR(0);
@@ -32,30 +32,25 @@ void setup()
 
 void loop()
 {
+    d.set_duty_cycle(duty);
+
+    delay(2000);
+
     pc_count = pc.read(); 
     pc_volt = (float)pc_count * 5.0 / 1023.0;
-    lr_volt = (float)lr_count * 5.0 / 1023.0;
-
-    d.set_duty_cycle(duty);
-    duty += 5.0;
-    if(duty > 95.0) duty = 5.0;
-
-    Serial.println();
+    lr_volt = 5.0 * duty / 100.0;
 
     Serial.print("Duty: ");
     Serial.print(duty);
-    Serial.println("%");
-
-    Serial.print("LED Resistor: ");
+    Serial.print(" % LED: ");
     Serial.print(lr_volt);
-    Serial.println("V");
-
-    Serial.print("Photocell Resistor: ");
+    Serial.print(" V");
+    Serial.print(" Photocell: ");
     Serial.print(pc_volt);
-    Serial.print("V (");
-    Serial.print(pc_count);
-    Serial.println(" count)");
+    Serial.print(" V");
+    Serial.println();
 
-    delay(2000);
+    duty += 5.0;
+    if(duty > 95.0) duty = 5.0;
 }
 

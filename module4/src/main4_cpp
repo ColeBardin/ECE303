@@ -4,9 +4,7 @@
 /* Experiment 4 */
 
 #define NLEDS 4
-// PS 8 -> f 3.921 KHz
-// 65535 / 3.921 = 16713 == 1 KHz
-#define PWM_TOP 16713
+#define PWM_TOP 15684
 
 DigitalPin pwm[NLEDS] =
 {
@@ -24,7 +22,7 @@ void setup()
     for(int i = 0; i < NLEDS; i++)
     {
         pwm[i].set_COM(COM_CLEAR);
-        pwm[i].set_CS(CS_PS_8);
+        pwm[i].set_CS(CS_PS_1);
         pwm[i].set_WGN(0x0E);
         pwm[i].set_ICR(PWM_TOP);
         pwm[i].set_OCR(0);
