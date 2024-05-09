@@ -2,7 +2,7 @@
 #include "DigitalPin.h"
 #include "AnalogPin.h"
 
-/* Experiment 4 */
+/* Experiment 1 */
 
 #define PWM_TOP 15684
 
@@ -35,14 +35,6 @@ void loop()
         val = Serial.parseInt();
         d.set_duty_cycle((float)counter);
         delay(500);
-        count = a.read(); 
-        Serial.println(count);
-        count = a.read(); 
-        Serial.println(count);
-        count = a.read(); 
-        Serial.println(count);
-        count = a.read(); 
-        Serial.println(count);
         count = a.read(); 
         Serial.println(count);
         counter += 1;
