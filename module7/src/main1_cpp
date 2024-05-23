@@ -1,0 +1,37 @@
+#include <Arduino.h>
+#include "DigitalPin.h"
+
+/* Experiment 1 */
+
+DigitalPin trig(11);
+DigitalPin echo(12);
+unsigned long duration;
+float cm;
+
+void setup()
+{
+    Serial.begin(9600);
+    trig.set_pin(GPIO_OUTPUT);
+    trig.write(0);
+
+    echo.set_pin(GPIO_INPUT);
+}
+
+void loop()
+{
+    trig.write(0);
+    delayMicroseconds(5);
+    trig.write(1);
+    delayMicroseconds(10);
+    trig.write(0);
+
+    duration = pulseIn(12, HIGH);
+    cm = ((float)duration / 2.0) / 29.1;
+
+    Serial.print("Distance: ");
+    Serial.print(cm);
+    Serial.println(" cm");
+
+    delay(1000);
+}
+

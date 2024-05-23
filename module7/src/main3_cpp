@@ -1,0 +1,72 @@
+#include <Arduino.h>
+#include "DigitalPin.h"
+
+/* Experiment 3 */
+
+#define PWM_TOP 15684
+
+int spin_motor(int speed);
+
+int val;
+char temp;
+DigitalPin forward(5);
+DigitalPin backward(6);
+
+void setup()
+{
+    Serial.begin(9600);
+    backward.set_COM(COM_CLEAR);
+    backward.set_CS(CS_PS_1);
+    backward.set_WGN(0x0E);
+    backward.set_ICR(PWM_TOP);
+    backward.set_OCR(0);
+    backward.set_TCNT(0);
+    backward.set_pin(GPIO_OUTPUT);
+
+    forward.set_COM(COM_CLEAR);
+    forward.set_CS(CS_PS_1);
+    forward.set_WGN(0x0E);
+    forward.set_ICR(PWM_TOP);
+    forward.set_OCR(0);
+    forward.set_TCNT(0);
+    forward.set_pin(GPIO_OUTPUT);
+
+    spin_motor(0);
+}
+
+void loop()
+{
+    if(Serial.available())
+    {
+        val = Serial.parseInt();
+        temp = Serial.read();
+        spin_motor(val);
+        Serial.print("Setting motot speed to: ");
+        Serial.print(val);
+        Serial.println("%");
+    }
+}
+
+int spin_motor(int speed)
+{
+    if(speed < -100) speed = -100;
+    if(speed > 100) speed = 100;
+
+    if(speed < 0)
+    {
+        forward.set_duty_cycle(0);
+        backward.set_duty_cycle(-1 * speed);
+    }
+    else if(speed == 0)
+    {
+        forward.set_duty_cycle(0);
+        backward.set_duty_cycle(0);
+    }
+    else if(speed > 0)
+    {
+        forward.set_duty_cycle(speed);
+        backward.set_duty_cycle(0);
+    }
+
+    return 0;
+}

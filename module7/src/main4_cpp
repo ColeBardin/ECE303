@@ -1,0 +1,34 @@
+#include <Arduino.h>
+#include "DigitalPin.h"
+
+/* Experiment 4 */
+
+
+DigitalPin r(2);
+DigitalPin y(3);
+DigitalPin g(4);
+
+void setup()
+{
+    Serial.begin(9600);
+
+    r.set_pin(GPIO_OUTPUT);
+    y.set_pin(GPIO_OUTPUT);
+    g.set_pin(GPIO_OUTPUT);
+    r.write(0);
+    y.write(0);
+    g.write(0);
+}
+
+void loop()
+{
+    r.write(1);
+    y.write(1);
+    g.write(1);
+    delay(1000);
+    r.write(0);
+    y.write(0);
+    g.write(0);
+    delay(1000);
+}
+
